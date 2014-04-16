@@ -5,6 +5,20 @@ Console = Ember.Object.extend({
 	mutedTags: [],
 	filter: undefined,
 
+	init: function() {
+		if(localStorage.getItem("console.mutedTags") !== undefined) {
+			console.log("load settings from localStorage, if possible");
+			this.mutedTags = localStorage.getItem("console.mutedTags").split(",");
+			this.filter = localStorage.getItem("console.filter");
+		}
+		var scripts = document.getElementsByTagName("script");
+		var scriptName = (document.currentScript || scripts[scripts.length - 1]).src;
+		scriptName = scriptName.split("/");
+		scriptName = scriptName[scriptName.length - 1];
+
+		this.setAuthor(scriptName);
+	},
+
 	log: function() {
 		if(this.baseConsole !== undefined) {
 
@@ -21,7 +35,7 @@ Console = Ember.Object.extend({
 				};
 			}
 
-			if(this.filter !== "" && this.filter !== undefined) {
+			if(this.filter !== "" && this.filter !== undefined && this.filter !== null) {
 				for (var i = 0; i < args.length; i++) {
 					if(typeof args[i] === "string") {
 						var regex = new RegExp(this.filter);
@@ -74,6 +88,11 @@ Console = Ember.Object.extend({
 
 	filterMessages: function(regex) {
 		this.filter = regex;
+	},
+
+	saveSettings: function() {
+		localStorage.setItem("console.mutedTags", this.mutedTags);
+		localStorage.setItem("console.filter", this.filter);
 	}
 });
 
@@ -82,7 +101,6 @@ console = Console.create({
 });
 
 console.log("m1", console);
-console.setAuthor("a1");
 console.addTag("t1");
 console.addTag("t2");
 console.log("m2", console);
