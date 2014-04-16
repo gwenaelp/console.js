@@ -4,6 +4,8 @@ Console = Ember.Object.extend({
 	tags: [],
 	mutedTags: [],
 	filter: undefined,
+	displayStacks: false,
+	stacks: [],
 
 	init: function() {
 		if(localStorage.getItem("console.mutedTags") !== undefined) {
@@ -28,6 +30,13 @@ Console = Ember.Object.extend({
 				args.push(arguments[i]);
 			};
 
+			if(!! this.displayStacks) {
+				var err = new Error();
+
+				this.stacks.push(err.stack);
+				args.unshift("[>" + this.stacks.length + "]")
+			}
+
 			if(this.tags !== undefined) {
 				for (var i = this.tags.length - 1; i >= 0 ; i--) {
 					if (this.mutedTags.contains(this.tags[i])) { return; };
@@ -45,6 +54,7 @@ Console = Ember.Object.extend({
 					}
 				};
 			};
+
 
 			this.baseConsole.log.apply(this.baseConsole, args);
 		}
@@ -93,6 +103,10 @@ Console = Ember.Object.extend({
 	saveSettings: function() {
 		localStorage.setItem("console.mutedTags", this.mutedTags);
 		localStorage.setItem("console.filter", this.filter);
+	},
+
+	getStack: function(index) {
+		return this.stacks[index];
 	}
 });
 
