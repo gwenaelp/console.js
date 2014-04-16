@@ -7,6 +7,8 @@ Console = Ember.Object.extend({
 	displayStacks: false,
 	stacks: [],
 
+	// Ctor ////////////////////////////////////////////////////////////////////////////////////////
+
 	init: function() {
 		if(localStorage.getItem("console.mutedTags") !== undefined) {
 			console.log("load settings from localStorage, if possible");
@@ -20,6 +22,8 @@ Console = Ember.Object.extend({
 
 		this.setAuthor(scriptName);
 	},
+
+	// Original console method wrappers ////////////////////////////////////////////////////////////
 
 	log: function() {
 		if(this.baseConsole !== undefined) {
@@ -60,6 +64,8 @@ Console = Ember.Object.extend({
 		}
 	},
 
+	// Tags ////////////////////////////////////////////////////////////////////////////////////////
+
 	addTag: function(tag){
 		this.tags.push(tag);
 	},
@@ -71,16 +77,6 @@ Console = Ember.Object.extend({
 				return;
 			}
 		};
-	},
-
-	flushTags: function(){
-		this.tags = [];
-		this.tags.push(this.author);
-	},
-
-	setAuthor: function(author) {
-		this.author = author;
-		this.tags.push(this.author);
 	},
 
 	muteTag: function(tag) {
@@ -96,14 +92,35 @@ Console = Ember.Object.extend({
 		};
 	},
 
+	flushTags: function(){
+		this.tags = [];
+		this.tags.push(this.author);
+	},
+
+	setAuthor: function(author) {
+		this.author = author;
+		this.tags.push(this.author);
+	},
+
+	// Message filtering ////////////////////////////////////////////////////////////////////////////
+
 	filterMessages: function(regex) {
 		this.filter = regex;
 	},
+
+	// Settings Management //////////////////////////////////////////////////////////////////////////
 
 	saveSettings: function() {
 		localStorage.setItem("console.mutedTags", this.mutedTags);
 		localStorage.setItem("console.filter", this.filter);
 	},
+
+	resetSettings: function() {
+		localStorage.setItem("console.mutedTags", undefined);
+		localStorage.setItem("console.filter", undefined);
+	},
+
+	// Debug utilities ///////////////////////////////////////////////////////////////////////////////
 
 	getStack: function(index) {
 		return this.stacks[index];
