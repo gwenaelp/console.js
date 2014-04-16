@@ -1,26 +1,24 @@
 Console = Ember.Object.extend({
 	baseConsole: undefined,
-	author: undefined,
-	tags: [],
-	mutedTags: [],
 	filter: undefined,
-	displayStacks: false,
-	stacks: [],
+
+	stacks: {
+		display: false,
+		_stacks: [],
+		get: function(index) {
+			return this._stacks[index];
+		}
+	},
 
 	// Ctor ////////////////////////////////////////////////////////////////////////////////////////
 
 	init: function() {
 		if(localStorage.getItem("console.mutedTags") !== undefined) {
 			console.log("load settings from localStorage, if possible");
-			this.mutedTags = localStorage.getItem("console.mutedTags").split(",");
-			this.filter = localStorage.getItem("console.filter");
+			this.tags._mutedTags = localStorage.getItem("console.mutedTags").split(",");
 		}
-		var scripts = document.getElementsByTagName("script");
-		var scriptName = (document.currentScript || scripts[scripts.length - 1]).src;
-		scriptName = scriptName.split("/");
-		scriptName = scriptName[scriptName.length - 1];
 
-		this.setAuthor(scriptName);
+		this.tags.flush();
 	},
 
 	// Original console method wrappers ////////////////////////////////////////////////////////////
@@ -34,17 +32,20 @@ Console = Ember.Object.extend({
 				args.push(arguments[i]);
 			};
 
-			if(!! this.displayStacks) {
+			if(!! this.stacks.display) {
 				var err = new Error();
 
-				this.stacks.push(err.stack);
-				args.unshift("[>" + this.stacks.length + "]")
+				this.stacks._stacks.push(err.stack);
+				args.unshift("[>" + this.stacks._stacks.length + "]")
 			}
 
-			if(this.tags !== undefined) {
-				for (var i = this.tags.length - 1; i >= 0 ; i--) {
-					if (this.mutedTags.contains(this.tags[i])) { return; };
-					args.unshift("["+ this.tags[i] +"]");
+			if(this.tags._tags !== undefined) {
+				for (var i = this.tags._tags.length - 1; i >= 0 ; i--) {
+					if (this.tags._mutedTags.contains(this.tags._tags[i])) {
+						this.baseConsole.info("leaving log 1");
+						return;
+					};
+					args.unshift("["+ this.tags._tags[i] +"]");
 				};
 			}
 
@@ -53,6 +54,7 @@ Console = Ember.Object.extend({
 					if(typeof args[i] === "string") {
 						var regex = new RegExp(this.filter);
 						if(regex.test(args[i])) {
+							this.baseConsole.info("leaving log 2");
 							return;
 						}
 					}
@@ -66,40 +68,49 @@ Console = Ember.Object.extend({
 
 	// Tags ////////////////////////////////////////////////////////////////////////////////////////
 
-	addTag: function(tag){
-		this.tags.push(tag);
-	},
+	tags: {
+		_tags: [],
+		_mutedTags: [],
+		_author: undefined,
 
-	removeTag: function(tag){
-		for (var i = 0; i < this.tags.length; i++) {
-			if(this.tags[i] === tag) {
-				this.tags.splice(i, 1);
-				return;
-			}
-		};
-	},
+		add: function(tag){
+			this._tags.push(tag);
+		},
 
-	muteTag: function(tag) {
-		this.mutedTags.push(tag);
-	},
+		remove: function(tag){
+			for (var i = 0; i < this._tags.length; i++) {
+				if(this._tags[i] === tag) {
+					this._tags.splice(i, 1);
+					return;
+				}
+			};
+		},
 
-	unmuteTag: function(tag) {
-		for (var i = 0; i < this.mutedTags.length; i++) {
-			if(this.mutedTags[i] === tag) {
-				this.mutedTags.splice(i, 1);
-				return;
-			}
-		};
-	},
+		mute: function(tag) {
+			this._mutedTags.push(tag);
+		},
 
-	flushTags: function(){
-		this.tags = [];
-		this.tags.push(this.author);
-	},
+		unmute: function(tag) {
+			for (var i = 0; i < this._mutedTags.length; i++) {
+				if(this._mutedTags[i] === tag) {
+					this._mutedTags.splice(i, 1);
+					return;
+				}
+			};
+		},
 
-	setAuthor: function(author) {
-		this.author = author;
-		this.tags.push(this.author);
+		flush: function(){
+			this._tags = [];
+
+			//getting author name
+			var scripts = document.getElementsByTagName("script");
+			var scriptName = (document.currentScript || scripts[scripts.length - 1]).src;
+			scriptName = scriptName.split("/");
+			scriptName = scriptName[scriptName.length - 1];
+
+			this._author = scriptName;
+			this._tags.push(this._author);
+		},
 	},
 
 	// Message filtering ////////////////////////////////////////////////////////////////////////////
@@ -110,20 +121,14 @@ Console = Ember.Object.extend({
 
 	// Settings Management //////////////////////////////////////////////////////////////////////////
 
-	saveSettings: function() {
-		localStorage.setItem("console.mutedTags", this.mutedTags);
-		localStorage.setItem("console.filter", this.filter);
-	},
+	settings: {
+		save: function() {
+			localStorage.setItem("console.mutedTags", this.tags._mutedTags);
+		},
 
-	resetSettings: function() {
-		localStorage.setItem("console.mutedTags", undefined);
-		localStorage.setItem("console.filter", undefined);
-	},
-
-	// Debug utilities ///////////////////////////////////////////////////////////////////////////////
-
-	getStack: function(index) {
-		return this.stacks[index];
+		reset: function() {
+			localStorage.setItem("console.mutedTags", undefined);
+		}
 	}
 });
 
@@ -132,16 +137,16 @@ console = Console.create({
 });
 
 console.log("m1", console);
-console.addTag("t1");
-console.addTag("t2");
+console.tags.add("t1");
+console.tags.add("t2");
 console.log("m2", console);
-console.removeTag("t1");
+console.tags.remove("t1");
 console.log("m3", console);
-console.flushTags();
+console.tags.flush();
 console.log("m4", console);
 
 
-console.addTag("t3");
+console.tags.add("t3");
 console.log("Object instantiated");
 
 window.setInterval(function(){
