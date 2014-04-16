@@ -43,6 +43,7 @@ Console = Ember.Object.extend({
 			};
 
 			if(consoleObject.stacks._check_repeats(args)) {
+				consoleObject._baseConsole.error("too much similar messages", arguments);
 				return null;
 			}
 
@@ -129,7 +130,6 @@ Console = Ember.Object.extend({
 					this._repeats[err.stack].counter ++;
 				}
 				if(this._repeats[err.stack].counter > this._repeat_threshold) {
-					console.error("too much similar messages", arguments);
 					return true;
 				}
 				return false;
