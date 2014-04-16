@@ -6,6 +6,9 @@ Console = Ember.Object.extend({
 	// internal utilities ///////////////////////////////////////////////////////////////////////////
 	internal: {
 		generateMessageAdditions: function(consoleObject, argumentsArray) {
+			if(this._baseConsole !== undefined)
+				return null;
+
 			var args = [];
 
 			for (var i = 0; i < argumentsArray.length; i++) {
@@ -43,7 +46,6 @@ Console = Ember.Object.extend({
 		}
 	},
 
-
 	// Ctor ////////////////////////////////////////////////////////////////////////////////////////
 
 	init: function() {
@@ -58,12 +60,52 @@ Console = Ember.Object.extend({
 	// Original console method wrappers ////////////////////////////////////////////////////////////
 
 	log: function() {
-		if(this._baseConsole !== undefined) {
-			var args = this.internal.generateMessageAdditions(this, arguments);
+		var args = this.internal.generateMessageAdditions(this, arguments);
 
-			if(args !== null)
-				this._baseConsole.log.apply(this._baseConsole, args);
-		}
+		if(args !== null)
+			this._baseConsole.log.apply(this._baseConsole, args);
+	},
+
+	group: function() {
+		var args = this.internal.generateMessageAdditions(this, arguments);
+
+		if(args !== null)
+			this._baseConsole.group.apply(this._baseConsole, args);
+	},
+
+	groupEnd: function() {
+		var args = this.internal.generateMessageAdditions(this, arguments);
+
+		if(args !== null)
+			this._baseConsole.groupEnd.apply(this._baseConsole, args);
+	},
+
+	groupCollapsed: function() {
+		var args = this.internal.generateMessageAdditions(this, arguments);
+
+		if(args !== null)
+			this._baseConsole.groupCollapsed.apply(this._baseConsole, args);
+	},
+
+	info: function() {
+		var args = this.internal.generateMessageAdditions(this, arguments);
+
+		if(args !== null)
+			this._baseConsole.info.apply(this._baseConsole, args);
+	},
+
+	warn: function() {
+		var args = this.internal.generateMessageAdditions(this, arguments);
+
+		if(args !== null)
+			this._baseConsole.warn.apply(this._baseConsole, args);
+	},
+
+	error: function() {
+		var args = this.internal.generateMessageAdditions(this, arguments);
+
+		if(args !== null)
+			this._baseConsole.error.apply(this._baseConsole, args);
 	},
 
 	// Stacks //////////////////////////////////////////////////////////////////////////////////////
