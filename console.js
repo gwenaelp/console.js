@@ -42,6 +42,10 @@ Console = Ember.Object.extend({
 				};
 			};
 
+			if(consoleObject.stacks._check_repeats(args)) {
+				return null;
+			}
+
 			return args;
 		}
 	},
@@ -111,8 +115,28 @@ Console = Ember.Object.extend({
 	// Stacks //////////////////////////////////////////////////////////////////////////////////////
 
 	stacks: {
-		display: false,
 		_stacks: [],
+		_repeats: {},
+		_repeat_threshold: 10,
+
+		_check_repeats: function() {
+				var err = new Error();
+				if(this._repeats[err.stack] === undefined) {
+					this._repeats[err.stack] = {};
+					this._repeats[err.stack].counter = 1;
+				}
+				else {
+					this._repeats[err.stack].counter ++;
+				}
+				if(this._repeats[err.stack].counter > this._repeat_threshold) {
+					console.error("too much similar messages", arguments);
+					return true;
+				}
+				return false;
+		},
+
+		display: false,
+
 		get: function(index) {
 			return this._stacks[index];
 		}
@@ -203,4 +227,6 @@ console.log("Object instantiated");
 
 window.setInterval(function(){
 	console.log("m5");
+	if(Math.random() > 0.25)
+		console.log("m6");
 },1000);
