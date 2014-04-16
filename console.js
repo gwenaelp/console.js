@@ -1,14 +1,48 @@
-Console = Ember.Object.extend({
-	baseConsole: undefined,
-	filter: undefined,
 
-	stacks: {
-		display: false,
-		_stacks: [],
-		get: function(index) {
-			return this._stacks[index];
+Console = Ember.Object.extend({
+	_baseConsole: undefined,
+	_filter: undefined,
+
+	// internal utilities ///////////////////////////////////////////////////////////////////////////
+	internal: {
+		generateMessageAdditions: function(consoleObject, argumentsArray) {
+			var args = [];
+
+			for (var i = 0; i < argumentsArray.length; i++) {
+				args.push(argumentsArray[i]);
+			};
+
+			if(!! consoleObject.stacks.display) {
+				var err = new Error();
+
+				consoleObject.stacks._stacks.push(err.stack);
+				args.unshift("[>" + consoleObject.stacks._stacks.length + "]")
+			}
+
+			if(consoleObject.tags._tags !== undefined) {
+				for (var i = consoleObject.tags._tags.length - 1; i >= 0 ; i--) {
+					if (consoleObject.tags._mutedTags.contains(consoleObject.tags._tags[i])) {
+						return null;
+					};
+					args.unshift("["+ consoleObject.tags._tags[i] +"]");
+				};
+			}
+
+			if(consoleObject._filter !== "" && consoleObject._filter !== undefined && consoleObject._filter !== null) {
+				for (var i = 0; i < args.length; i++) {
+					if(typeof args[i] === "string") {
+						var regex = new RegExp(consoleObject._filter);
+						if(regex.test(args[i])) {
+							return null;
+						}
+					}
+				};
+			};
+
+			return args;
 		}
 	},
+
 
 	// Ctor ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,45 +58,21 @@ Console = Ember.Object.extend({
 	// Original console method wrappers ////////////////////////////////////////////////////////////
 
 	log: function() {
-		if(this.baseConsole !== undefined) {
+		if(this._baseConsole !== undefined) {
+			var args = this.internal.generateMessageAdditions(this, arguments);
 
-			var args = [];
+			if(args !== null)
+				this._baseConsole.log.apply(this._baseConsole, args);
+		}
+	},
 
-			for (var i = 0; i < arguments.length; i++) {
-				args.push(arguments[i]);
-			};
+	// Stacks //////////////////////////////////////////////////////////////////////////////////////
 
-			if(!! this.stacks.display) {
-				var err = new Error();
-
-				this.stacks._stacks.push(err.stack);
-				args.unshift("[>" + this.stacks._stacks.length + "]")
-			}
-
-			if(this.tags._tags !== undefined) {
-				for (var i = this.tags._tags.length - 1; i >= 0 ; i--) {
-					if (this.tags._mutedTags.contains(this.tags._tags[i])) {
-						this.baseConsole.info("leaving log 1");
-						return;
-					};
-					args.unshift("["+ this.tags._tags[i] +"]");
-				};
-			}
-
-			if(this.filter !== "" && this.filter !== undefined && this.filter !== null) {
-				for (var i = 0; i < args.length; i++) {
-					if(typeof args[i] === "string") {
-						var regex = new RegExp(this.filter);
-						if(regex.test(args[i])) {
-							this.baseConsole.info("leaving log 2");
-							return;
-						}
-					}
-				};
-			};
-
-
-			this.baseConsole.log.apply(this.baseConsole, args);
+	stacks: {
+		display: false,
+		_stacks: [],
+		get: function(index) {
+			return this._stacks[index];
 		}
 	},
 
@@ -116,7 +126,7 @@ Console = Ember.Object.extend({
 	// Message filtering ////////////////////////////////////////////////////////////////////////////
 
 	filterMessages: function(regex) {
-		this.filter = regex;
+		this._filter = regex;
 	},
 
 	// Settings Management //////////////////////////////////////////////////////////////////////////
@@ -133,7 +143,7 @@ Console = Ember.Object.extend({
 });
 
 console = Console.create({
-	baseConsole: console
+	_baseConsole: console
 });
 
 console.log("m1", console);
