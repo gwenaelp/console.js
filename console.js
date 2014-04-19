@@ -56,7 +56,12 @@ Console = Ember.Object.extend({
 	init: function() {
 		if(localStorage.getItem("console.mutedTags") !== undefined) {
 			console.log("load settings from localStorage, if possible");
-			this.tags._mutedTags = localStorage.getItem("console.mutedTags").split(",");
+
+			var ls_mutedTags = localStorage.getItem("console.mutedTags");
+
+			if(!!ls_mutedTags) {
+				this.tags._mutedTags = ls_mutedTags.split(",");
+			}
 		}
 
 		this.tags.flush();
