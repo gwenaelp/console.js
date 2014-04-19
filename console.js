@@ -67,50 +67,84 @@ Console = Ember.Object.extend({
 	log: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+		if(args !== null) {
 			this._baseConsole.log.apply(this._baseConsole, args);
+			this.backends.send("log", args);
+		}
 	},
 
 	group: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+		if(args !== null) {
 			this._baseConsole.group.apply(this._baseConsole, args);
+			this.backends.send("group", args);
+		}
 	},
 
 	groupEnd: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+		if(args !== null) {
 			this._baseConsole.groupEnd.apply(this._baseConsole, args);
+			this.backends.send("groupEnd", args);
+		}
 	},
 
 	groupCollapsed: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+		if(args !== null) {
 			this._baseConsole.groupCollapsed.apply(this._baseConsole, args);
+			this.backends.send("groupCollapsed", args);
+		}
 	},
 
 	info: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+		if(args !== null) {
 			this._baseConsole.info.apply(this._baseConsole, args);
+			this.backends.send("info", args);
+		}
 	},
 
 	warn: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+			if(args !== null) {
 			this._baseConsole.warn.apply(this._baseConsole, args);
+			this.backends.send("warn", args);
+		}
 	},
 
 	error: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
-		if(args !== null)
+		if(args !== null) {
 			this._baseConsole.error.apply(this._baseConsole, args);
+			this.backends.send("error", args);
+		}
+	},
+
+	// Backends ////////////////////////////////////////////////////////////////////////////////////
+
+	backends: {
+		_backends: {},
+
+		add: function(name, backendObject) {
+			_backends[name] = backendObject;
+		},
+
+		remove: function(name) {
+			delete _backends[name];
+		},
+
+		send: function(function_name, args) {
+			for (var i = 0; i < this._backends.length; i++) {
+				this._backends[i].send(function_name, args);
+			};
+		}
 	},
 
 	// Stacks //////////////////////////////////////////////////////////////////////////////////////
