@@ -38,7 +38,13 @@ console = {
 				};
 			}
 
-			args.push(args_tags);
+			if(!! consoleObject.style._colors) {
+				args_tags = "%c" + args_tags;
+				args.push(args_tags);
+				args.push('background: #222; color: #bada55');
+			} else {
+				args.push(args_tags);
+			}
 
 			if(consoleObject._filter !== "" && consoleObject._filter !== undefined && consoleObject._filter !== null) {
 				for (var i = 0; i < args.length; i++) {
