@@ -1,20 +1,29 @@
+var _baseConsole = console;
 
-Console = Ember.Object.extend({
-	_baseConsole: undefined,
+//define Array.contains if not defined before
+if(Array.prototype.contains === undefined) {
+	Array.prototype.contains = function(obj) {
+		var i = this.length;
+		while (i--) {
+			if (this[i] === obj) {
+				return true;
+			}
+		}
+		return false;
+	};
+}
+
+console = {
 	_filter: undefined,
 
 	// internal utilities ///////////////////////////////////////////////////////////////////////////
 	internal: {
 		generateMessageAdditions: function(consoleObject, argumentsArray) {
-			if(this._baseConsole !== undefined)
-				return null;
-
 			var args = [];
 
 			for (var i = 0; i < argumentsArray.length; i++) {
 				args.push(argumentsArray[i]);
 			};
-
 			if(!! consoleObject.stacks.display) {
 				var err = new Error();
 
@@ -23,13 +32,20 @@ Console = Ember.Object.extend({
 			}
 
 			if(consoleObject.tags._tags !== undefined) {
-				for (var i = consoleObject.tags._tags.length - 1; i >= 0 ; i--) {
+				for (var i = console.tags._tags.length - 1; i >= 0 ; i--) {
 					if (consoleObject.tags._mutedTags.contains(consoleObject.tags._tags[i])) {
 						return null;
 					};
 					args.unshift("["+ consoleObject.tags._tags[i] +"]");
 				};
 			}
+
+			//getting author name
+			var file_split = new Error().stack.split('\n')[2].split('/'),
+				file_location = file_split[file_split.length - 1].replace(')',''),
+				filename = file_location.split(':')[0];
+
+			args.unshift("[" + file_location + "]");
 
 			if(consoleObject._filter !== "" && consoleObject._filter !== undefined && consoleObject._filter !== null) {
 				for (var i = 0; i < args.length; i++) {
@@ -43,7 +59,7 @@ Console = Ember.Object.extend({
 			};
 
 			if(consoleObject.stacks._check_repeats(args)) {
-				consoleObject._baseConsole.error("too much similar messages", arguments);
+				_baseConsole.error("too much similar messages", arguments);
 				return null;
 			}
 
@@ -64,7 +80,7 @@ Console = Ember.Object.extend({
 			}
 		}
 
-		this.tags.flush();
+		console.tags.flush();
 	},
 
 	// Original console method wrappers ////////////////////////////////////////////////////////////
@@ -73,16 +89,16 @@ Console = Ember.Object.extend({
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
-			this._baseConsole.log.apply(this._baseConsole, args);
+			_baseConsole.log.apply(_baseConsole, args);
 			this.backends.send("log", args);
 		}
 	},
 
 	group: function() {
-		var args = this.internal.generateMessageAdditions(this, arguments);
+		var args = console.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
-			this._baseConsole.group.apply(this._baseConsole, args);
+			_baseConsole.group.apply(_baseConsole, args);
 			this.backends.send("group", args);
 		}
 	},
@@ -91,7 +107,7 @@ Console = Ember.Object.extend({
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
-			this._baseConsole.groupEnd.apply(this._baseConsole, args);
+			_baseConsole.groupEnd.apply(_baseConsole, args);
 			this.backends.send("groupEnd", args);
 		}
 	},
@@ -100,7 +116,7 @@ Console = Ember.Object.extend({
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
-			this._baseConsole.groupCollapsed.apply(this._baseConsole, args);
+			_baseConsole.groupCollapsed.apply(_baseConsole, args);
 			this.backends.send("groupCollapsed", args);
 		}
 	},
@@ -109,7 +125,7 @@ Console = Ember.Object.extend({
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
-			this._baseConsole.info.apply(this._baseConsole, args);
+			_baseConsole.info.apply(_baseConsole, args);
 			this.backends.send("info", args);
 		}
 	},
@@ -118,7 +134,7 @@ Console = Ember.Object.extend({
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 			if(args !== null) {
-			this._baseConsole.warn.apply(this._baseConsole, args);
+			_baseConsole.warn.apply(_baseConsole, args);
 			this.backends.send("warn", args);
 		}
 	},
@@ -127,7 +143,7 @@ Console = Ember.Object.extend({
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
-			this._baseConsole.error.apply(this._baseConsole, args);
+			_baseConsole.error.apply(_baseConsole, args);
 			this.backends.send("error", args);
 		}
 	},
@@ -216,15 +232,6 @@ Console = Ember.Object.extend({
 
 		flush: function(){
 			this._tags = [];
-
-			//getting author name
-			var scripts = document.getElementsByTagName("script");
-			var scriptName = (document.currentScript || scripts[scripts.length - 1]).src;
-			scriptName = scriptName.split("/");
-			scriptName = scriptName[scriptName.length - 1];
-
-			this._author = scriptName;
-			this._tags.push(this._author);
 		},
 	},
 
@@ -245,4 +252,6 @@ Console = Ember.Object.extend({
 			localStorage.setItem("console.mutedTags", undefined);
 		}
 	}
-});
+};
+
+console.init();
