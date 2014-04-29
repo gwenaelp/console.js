@@ -79,17 +79,10 @@ console = {
 	// Ctor ////////////////////////////////////////////////////////////////////////////////////////
 
 	init: function() {
-		if(localStorage.getItem("console.mutedTags") !== undefined) {
-			console.log("load settings from localStorage, if possible");
+		console.log("load settings from localStorage, if possible");
+		this.settings.load();
 
-			var ls_mutedTags = localStorage.getItem("console.mutedTags");
-
-			if(!!ls_mutedTags) {
-				this.tags._mutedTags = ls_mutedTags.split(",");
-			}
-		}
-
-		console.tags.flush();
+		this.tags.flush();
 	},
 
 	// Original console method wrappers ////////////////////////////////////////////////////////////
@@ -253,8 +246,31 @@ console = {
 	// Settings Management //////////////////////////////////////////////////////////////////////////
 
 	settings: {
+		_savedProperties: ["tags._mutedTags", "style._colors"],
+
 		save: function() {
-			localStorage.setItem("console.mutedTags", this.tags._mutedTags);
+			for (var i = 0; i < this._savedProperties.length; i++) {
+				var currentPropStr = "console." + this._savedProperties[i];
+
+				var val = eval(currentPropStr);
+				if(typeof val === "string") {
+					val = "'" + val +"'";
+				} else if(typeof val === "object") {
+					val = JSON.stringify(val);
+				}
+
+				localStorage.setItem(currentPropStr, val);
+			};
+
+		},
+
+		load: function() {
+			for (var i = 0; i < this._savedProperties.length; i++) {
+				var currentPropStr = "console." + this._savedProperties[i];
+
+				eval(currentPropStr + "= " + localStorage.getItem(currentPropStr) + "");
+			};
+
 		},
 
 		reset: function() {
