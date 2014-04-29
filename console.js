@@ -261,20 +261,22 @@ console = {
 
 				localStorage.setItem(currentPropStr, val);
 			};
-
 		},
 
 		load: function() {
 			for (var i = 0; i < this._savedProperties.length; i++) {
 				var currentPropStr = "console." + this._savedProperties[i];
 
-				eval(currentPropStr + "= " + localStorage.getItem(currentPropStr) + "");
+				eval(currentPropStr + "= " + localStorage.getItem(currentPropStr));
 			};
-
 		},
 
 		reset: function() {
-			localStorage.setItem("console.mutedTags", undefined);
+			for (var i = 0; i < this._savedProperties.length; i++) {
+				var currentPropStr = "console." + this._savedProperties[i];
+
+				eval(currentPropStr + "= " + undefined);
+			};
 		}
 	},
 
