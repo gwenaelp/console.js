@@ -21,31 +21,24 @@ console = {
 		generateMessageAdditions: function(consoleObject, argumentsArray) {
 			var args = [];
 
-			for (var i = 0; i < argumentsArray.length; i++) {
-				args.push(argumentsArray[i]);
-			};
-			if(!! consoleObject.stacks.display) {
-				var err = new Error();
-
-				consoleObject.stacks._stacks.push(err.stack);
-				args.unshift("[>" + consoleObject.stacks._stacks.length + "]")
-			}
-
-			if(consoleObject.tags._tags !== undefined) {
-				for (var i = console.tags._tags.length - 1; i >= 0 ; i--) {
-					if (consoleObject.tags._mutedTags.contains(consoleObject.tags._tags[i])) {
-						return null;
-					};
-					args.unshift("["+ consoleObject.tags._tags[i] +"]");
-				};
-			}
 
 			//getting author name
 			var file_split = new Error().stack.split('\n')[2].split('/'),
 				file_location = file_split[file_split.length - 1].replace(')',''),
 				filename = file_location.split(':')[0];
 
-			args.unshift("[" + file_location + "]");
+			var args_tags = "[" + file_location + "]";
+
+			if(consoleObject.tags._tags !== undefined) {
+				for (var i = 0; i <= consoleObject.tags._tags.length - 1 ; i++) {
+					if (consoleObject.tags._mutedTags.contains(consoleObject.tags._tags[i])) {
+						return null;
+					};
+					args_tags += "["+ consoleObject.tags._tags[i] +"]";
+				};
+			}
+
+			args.push(args_tags);
 
 			if(consoleObject._filter !== "" && consoleObject._filter !== undefined && consoleObject._filter !== null) {
 				for (var i = 0; i < args.length; i++) {
@@ -62,6 +55,16 @@ console = {
 				_baseConsole.error("too much similar messages", arguments);
 				return null;
 			}
+			if(!! consoleObject.stacks.display) {
+				var err = new Error();
+
+				consoleObject.stacks._stacks.push(err.stack);
+				args.push("[>" + consoleObject.stacks._stacks.length + "]")
+			}
+
+			for (var i = 0; i < argumentsArray.length; i++) {
+				args.push(argumentsArray[i]);
+			};
 
 			return args;
 		}
@@ -251,6 +254,10 @@ console = {
 		reset: function() {
 			localStorage.setItem("console.mutedTags", undefined);
 		}
+	},
+
+	style: {
+		_colors: false
 	}
 };
 
