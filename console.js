@@ -246,7 +246,7 @@ console = {
 	// Settings Management //////////////////////////////////////////////////////////////////////////
 
 	settings: {
-		_savedProperties: ["tags._mutedTags", "style._colors"],
+		_savedProperties: ["tags._mutedTags", "style._colors", "stacks.display"],
 
 		save: function() {
 			for (var i = 0; i < this._savedProperties.length; i++) {
