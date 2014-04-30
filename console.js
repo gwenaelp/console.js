@@ -28,6 +28,10 @@ console = {
 				filename = file_location.split(':')[0];
 				line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
+			if (consoleObject.tags._mutedTags.contains(filename) {
+				return null;
+			}
+			
 			var args_tags = "[" + filename + "][" + line_number + "]";
 
 			if(consoleObject.tags._tags !== undefined) {
