@@ -28,7 +28,7 @@ console = {
 				filename = file_location.split(':')[0];
 				line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-			if (consoleObject.tags._mutedTags.contains(filename) {
+			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null && consoleObject.tags._mutedTags.contains(filename)) {
 				return null;
 			}
 			
