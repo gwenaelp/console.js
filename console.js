@@ -23,11 +23,12 @@ console = {
 
 
 			//getting author name
-			var file_split = new Error().stack.split('\n')[2].split('/'),
+			var file_split = new Error().stack.split('\n')[3].split('/'),
 				file_location = file_split[file_split.length - 1].replace(')',''),
 				filename = file_location.split(':')[0];
+				line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-			var args_tags = "[" + file_location + "]";
+			var args_tags = "[" + filename + "][" + line_number + "]";
 
 			if(consoleObject.tags._tags !== undefined) {
 				for (var i = 0; i <= consoleObject.tags._tags.length - 1 ; i++) {
@@ -87,7 +88,7 @@ console = {
 
 	// Original console method wrappers ////////////////////////////////////////////////////////////
 
-	log: function() {
+	log: function(messages) {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
@@ -286,3 +287,4 @@ console = {
 };
 
 console.init();
+
