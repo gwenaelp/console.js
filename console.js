@@ -15,7 +15,7 @@ if(Array.prototype.contains === undefined) {
 
 console = {
 	_filter: undefined,
-
+	
 	// internal utilities ///////////////////////////////////////////////////////////////////////////
 	internal: {
 		generateMessageAdditions: function(consoleObject, argumentsArray) {
@@ -23,8 +23,16 @@ console = {
 
 
 			//getting author name
-			var file_split = new Error().stack.split('\n')[3].split('/'),
-				file_location = file_split[file_split.length - 1].replace(')',''),
+			var file_split = new Error().stack.split('\n')[3].split('/');
+
+			//consoleObject._baseConsole.log("file split", file_split);
+			
+			var file_location = file_split[file_split.length - 1];
+			for(var i = 1; i < consoleObject.tags._authorFoldersDisplay; i++) {
+				file_location = file_split[file_split.length - i - 1] + "/" + file_location;
+			}
+
+			var file_location = file_location.replace(')',''),
 				filename = file_location.split(':')[0];
 				line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
@@ -180,7 +188,7 @@ console = {
 	stacks: {
 		_stacks: [],
 		_repeats: {},
-		_repeat_threshold: 10,
+		_repeat_threshold: 1000,
 
 		_check_repeats: function() {
 				var err = new Error();
@@ -210,6 +218,7 @@ console = {
 		_tags: [],
 		_mutedTags: [],
 		_author: undefined,
+		_authorFoldersDisplay: 0,
 
 		add: function(tag){
 			this._tags.push(tag);
@@ -251,7 +260,7 @@ console = {
 	// Settings Management //////////////////////////////////////////////////////////////////////////
 
 	settings: {
-		_savedProperties: ["tags._mutedTags", "style._colors", "stacks.display"],
+		_savedProperties: ["tags._mutedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay"],
 
 		save: function() {
 			for (var i = 0; i < this._savedProperties.length; i++) {
