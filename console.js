@@ -15,40 +15,40 @@ if(Array.prototype.contains === undefined) {
 
 console = {
 	_filter: undefined,
-	
+
 	// internal utilities ///////////////////////////////////////////////////////////////////////////
 	internal: {
 		generateMessageAdditions: function(consoleObject, argumentsArray) {
 			var args = [];
-
+			var i;
 
 			//getting author name
 			var file_split = new Error().stack.split('\n')[3].split('/');
 
 			//consoleObject._baseConsole.log("file split", file_split);
-			
+
 			var file_location = file_split[file_split.length - 1];
-			for(var i = 1; i < consoleObject.tags._authorFoldersDisplay; i++) {
+			for(i = 1; i < consoleObject.tags._authorFoldersDisplay; i++) {
 				file_location = file_split[file_split.length - i - 1] + "/" + file_location;
 			}
 
-			var file_location = file_location.replace(')',''),
-				filename = file_location.split(':')[0];
-				line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
+			var	filename = file_location.split(':')[0];
+			file_location = file_location.replace(')','');
+			var	line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
 			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null && consoleObject.tags._mutedTags.contains(filename)) {
 				return null;
 			}
-			
+
 			var args_tags = "[" + filename + "][" + line_number + "]";
 
 			if(consoleObject.tags._tags !== undefined) {
-				for (var i = 0; i <= consoleObject.tags._tags.length - 1 ; i++) {
+				for (i = 0; i <= consoleObject.tags._tags.length - 1 ; i++) {
 					if (consoleObject.tags._mutedTags.contains(consoleObject.tags._tags[i])) {
 						return null;
-					};
+					}
 					args_tags += "["+ consoleObject.tags._tags[i] +"]";
-				};
+				}
 			}
 
 			if(!! consoleObject.style._colors) {
@@ -60,15 +60,15 @@ console = {
 			}
 
 			if(consoleObject._filter !== "" && consoleObject._filter !== undefined && consoleObject._filter !== null) {
-				for (var i = 0; i < args.length; i++) {
+				for (i = 0; i < args.length; i++) {
 					if(typeof args[i] === "string") {
 						var regex = new RegExp(consoleObject._filter);
 						if(regex.test(args[i])) {
 							return null;
 						}
 					}
-				};
-			};
+				}
+			}
 
 			if(consoleObject.stacks._check_repeats(args)) {
 				_baseConsole.error("too much similar messages", arguments);
@@ -78,12 +78,12 @@ console = {
 				var err = new Error();
 
 				consoleObject.stacks._stacks.push(err.stack);
-				args.push("[>" + consoleObject.stacks._stacks.length + "]")
+				args.push("[>" + consoleObject.stacks._stacks.length + "]");
 			}
 
-			for (var i = 0; i < argumentsArray.length; i++) {
+			for (i = 0; i < argumentsArray.length; i++) {
 				args.push(argumentsArray[i]);
-			};
+			}
 
 			return args;
 		}
@@ -100,7 +100,7 @@ console = {
 
 	// Original console method wrappers ////////////////////////////////////////////////////////////
 
-	log: function(messages) {
+	log: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
 
 		if(args !== null) {
@@ -169,17 +169,17 @@ console = {
 		_backends: {},
 
 		add: function(name, backendObject) {
-			_backends[name] = backendObject;
+			this._backends[name] = backendObject;
 		},
 
 		remove: function(name) {
-			delete _backends[name];
+			delete this._backends[name];
 		},
 
 		send: function(function_name, args) {
 			for (var i = 0; i < this._backends.length; i++) {
 				this._backends[i].send(function_name, args);
-			};
+			}
 		}
 	},
 
@@ -230,7 +230,7 @@ console = {
 					this._tags.splice(i, 1);
 					return;
 				}
-			};
+			}
 		},
 
 		mute: function(tag) {
@@ -243,7 +243,7 @@ console = {
 					this._mutedTags.splice(i, 1);
 					return;
 				}
-			};
+			}
 		},
 
 		flush: function(){
@@ -274,7 +274,7 @@ console = {
 				}
 
 				localStorage.setItem(currentPropStr, val);
-			};
+			}
 		},
 
 		load: function() {
@@ -282,7 +282,7 @@ console = {
 				var currentPropStr = "console." + this._savedProperties[i];
 
 				eval(currentPropStr + "= " + localStorage.getItem(currentPropStr));
-			};
+			}
 		},
 
 		reset: function() {
@@ -290,7 +290,7 @@ console = {
 				var currentPropStr = "console." + this._savedProperties[i];
 
 				eval(currentPropStr + "= " + undefined);
-			};
+			}
 		}
 	},
 
@@ -298,6 +298,6 @@ console = {
 		_colors: false
 	}
 };
-
+console.debug = console.log;
 console.init();
 
