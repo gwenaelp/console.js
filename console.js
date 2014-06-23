@@ -18,7 +18,7 @@ console = {
 
 	// internal utilities ///////////////////////////////////////////////////////////////////////////
 	internal: {
-		generateMessageAdditions: function(consoleObject, argumentsArray) {
+		generateMessageAdditions: function(consoleObject, argumentsArray, forceDisplay) {
 			var args = [];
 			var i;
 
@@ -36,19 +36,34 @@ console = {
 			file_location = file_location.replace(')','');
 			var	line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null && consoleObject.tags._mutedTags.contains(filename)) {
-				return null;
-			}
 
 			var args_tags = "[" + filename + "][" + line_number + "]";
 
+			var tagMatchSelectedTag = false;
 			if(consoleObject.tags._tags !== undefined) {
 				for (i = 0; i <= consoleObject.tags._tags.length - 1 ; i++) {
-					if (consoleObject.tags._mutedTags.contains(consoleObject.tags._tags[i])) {
-						return null;
+					if (consoleObject.tags._selectedTags.contains(consoleObject.tags._tags[i])) {
+						tagMatchSelectedTag = true;
 					}
 					args_tags += "["+ consoleObject.tags._tags[i] +"]";
 				}
+			}
+
+			if (consoleObject.tags._muteAllByDefault === false && consoleObject.tags._selectedTags !== undefined && consoleObject.tags._selectedTags !== null && consoleObject.tags._selectedTags.contains(filename)) {
+				if(! forceDisplay)
+					return null;
+			}
+			if (consoleObject.tags._muteAllByDefault === true && consoleObject.tags._selectedTags !== undefined && consoleObject.tags._selectedTags !== null && !consoleObject.tags._selectedTags.contains(filename)) {
+				if(! forceDisplay)
+					return null;
+			}
+			if(tagMatchSelectedTag === false && consoleObject.tags._muteAllByDefault === true) {
+				if(! forceDisplay)
+					return null;
+			}
+			if(tagMatchSelectedTag === true && consoleObject.tags._muteAllByDefault === false) {
+				if(! forceDisplay)
+					return null;
 			}
 
 			if(!! consoleObject.style._colors) {
@@ -64,7 +79,8 @@ console = {
 					if(typeof args[i] === "string") {
 						var regex = new RegExp(consoleObject._filter);
 						if(regex.test(args[i])) {
-							return null;
+							if(! forceDisplay)
+								return null;
 						}
 					}
 				}
@@ -72,7 +88,8 @@ console = {
 
 			if(consoleObject.stacks._check_repeats(args)) {
 				_baseConsole.error("too much similar messages", arguments);
-				return null;
+				if(! forceDisplay)
+					return null;
 			}
 			if(!! consoleObject.stacks.display) {
 				var err = new Error();
@@ -93,6 +110,9 @@ console = {
 
 	init: function() {
 		console.log("load settings from localStorage, if possible");
+		if(this.tags._selectedTags === undefined || this.tags._selectedTags === null) {
+			this.tags._selectedTags = [];
+		}
 		this.settings.load();
 
 		this.tags.flush();
@@ -110,7 +130,7 @@ console = {
 	},
 
 	group: function() {
-		var args = console.internal.generateMessageAdditions(this, arguments);
+		var args = console.internal.generateMessageAdditions(this, arguments, true);
 
 		if(args !== null) {
 			_baseConsole.group.apply(_baseConsole, args);
@@ -119,7 +139,7 @@ console = {
 	},
 
 	groupEnd: function() {
-		var args = this.internal.generateMessageAdditions(this, arguments);
+		var args = this.internal.generateMessageAdditions(this, arguments, true);
 
 		if(args !== null) {
 			_baseConsole.groupEnd.apply(_baseConsole, args);
@@ -128,7 +148,7 @@ console = {
 	},
 
 	groupCollapsed: function() {
-		var args = this.internal.generateMessageAdditions(this, arguments);
+		var args = this.internal.generateMessageAdditions(this, arguments, true);
 
 		if(args !== null) {
 			_baseConsole.groupCollapsed.apply(_baseConsole, args);
@@ -146,7 +166,7 @@ console = {
 	},
 
 	warn: function() {
-		var args = this.internal.generateMessageAdditions(this, arguments);
+		var args = this.internal.generateMessageAdditions(this, arguments, true);
 
 			if(args !== null) {
 			_baseConsole.warn.apply(_baseConsole, args);
@@ -155,7 +175,7 @@ console = {
 	},
 
 	error: function() {
-		var args = this.internal.generateMessageAdditions(this, arguments);
+		var args = this.internal.generateMessageAdditions(this, arguments, true);
 
 		if(args !== null) {
 			_baseConsole.error.apply(_baseConsole, args);
@@ -216,7 +236,8 @@ console = {
 
 	tags: {
 		_tags: [],
-		_mutedTags: [],
+		_selectedTags: [],
+		_muteAllByDefault:true,
 		_author: undefined,
 		_authorFoldersDisplay: 0,
 
@@ -233,14 +254,14 @@ console = {
 			}
 		},
 
-		mute: function(tag) {
-			this._mutedTags.push(tag);
+		select: function(tag) {
+			this._selectedTags.push(tag);
 		},
 
-		unmute: function(tag) {
-			for (var i = 0; i < this._mutedTags.length; i++) {
-				if(this._mutedTags[i] === tag) {
-					this._mutedTags.splice(i, 1);
+		unselect: function(tag) {
+			for (var i = 0; i < this._selectedTags.length; i++) {
+				if(this._selectedTags[i] === tag) {
+					this._selectedTags.splice(i, 1);
 					return;
 				}
 			}
@@ -260,7 +281,7 @@ console = {
 	// Settings Management //////////////////////////////////////////////////////////////////////////
 
 	settings: {
-		_savedProperties: ["tags._mutedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay"],
+		_savedProperties: ["tags._selectedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay"],
 
 		save: function() {
 			for (var i = 0; i < this._savedProperties.length; i++) {
