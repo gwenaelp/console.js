@@ -287,7 +287,7 @@ console = {
 	// Settings Management 
 
 	settings: {
-		_savedProperties: ["tags._selectedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay"],
+		_savedProperties: ["tags._selectedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay", "tags._muteAllByDefault"],
 
 		save: function() {
 			for (var i = 0; i < this._savedProperties.length; i++) {
