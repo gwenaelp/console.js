@@ -36,8 +36,12 @@ console = {
 			file_location = file_location.replace(')','');
 			var	line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null && consoleObject.tags._mutedTags.contains(filename)) {
-				return null;
+			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null) {
+				for (var x=0; x<consoleObject.tags._mutedTags.length; x++) {
+					if(filename.indexOf(consoleObject.tags._mutedTags[x]) > -1) {
+						return null;
+					}
+				}
 			}
 
 			var args_tags = "[" + filename + "][" + line_number + "]";
@@ -54,7 +58,7 @@ console = {
 			if(!! consoleObject.style._colors) {
 				args_tags = "%c" + args_tags;
 				args.push(args_tags);
-				args.push('background: #222; color: #bada55');
+				args.push('background: #444; color: #eee; border-radius:4px;padding:2px');
 			} else {
 				args.push(args_tags);
 			}
@@ -218,7 +222,7 @@ console = {
 		_tags: [],
 		_mutedTags: [],
 		_author: undefined,
-		_authorFoldersDisplay: 0,
+		_authorFoldersDisplay: 2,
 
 		add: function(tag){
 			this._tags.push(tag);
