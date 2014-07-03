@@ -117,11 +117,10 @@ console = {
 
 	init: function() {
 		console.log("load settings from localStorage, if possible");
+		this.settings.load();
 		if(this.tags._selectedTags === undefined || this.tags._selectedTags === null) {
 			this.tags._selectedTags = [];
-		}
-		this.settings.load();
-
+		}	
 		this.tags.flush();
 	},
 
