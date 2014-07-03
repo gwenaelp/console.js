@@ -36,14 +36,9 @@ console = {
 			file_location = file_location.replace(')','');
 			var	line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null) {
-				for (var x=0; x<consoleObject.tags._mutedTags.length; x++) {
-					if(filename.indexOf(consoleObject.tags._mutedTags[x]) > -1) {
-						return null;
-					}
-				}
+			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null && consoleObject.tags._mutedTags.contains(filename)) {
+				return null;
 			}
-
 			var args_tags = "[" + filename + "][" + line_number + "]";
 
 			var tagMatchSelectedTag = false;
