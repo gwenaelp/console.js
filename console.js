@@ -36,7 +36,7 @@ console = {
 			file_location = file_location.replace(')','');
 			var	line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null && consoleObject.tags._mutedTags.contains(filename)) {
+			if (consoleObject.tags._selectedTags !== undefined && consoleObject.tags._selectedTags !== null && consoleObject.tags._selectedTags.contains(filename)) {
 				return null;
 			}
 			var args_tags = "[" + filename + "][" + line_number + "]";
