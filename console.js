@@ -16,7 +16,7 @@ if(Array.prototype.contains === undefined) {
 console = {
 	_filter: undefined,
 
-	// internal utilities ///////////////////////////////////////////////////////////////////////////
+	// internal utilities 
 	internal: {
 		generateMessageAdditions: function(consoleObject, argumentsArray, forceDisplay) {
 			var args = [];
@@ -36,6 +36,13 @@ console = {
 			file_location = file_location.replace(')','');
 			var	line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
+			if (consoleObject.tags._mutedTags !== undefined && consoleObject.tags._mutedTags !== null) {
+				for (var x=0; x<consoleObject.tags._mutedTags.length; x++) {
+					if(filename.indexOf(consoleObject.tags._mutedTags[x]) > -1) {
+						return null;
+					}
+				}
+			}
 
 			var args_tags = "[" + filename + "][" + line_number + "]";
 
@@ -69,7 +76,7 @@ console = {
 			if(!! consoleObject.style._colors) {
 				args_tags = "%c" + args_tags;
 				args.push(args_tags);
-				args.push('background: #222; color: #bada55');
+				args.push('background: #444; color: #eee; border-radius:4px;padding:2px');
 			} else {
 				args.push(args_tags);
 			}
@@ -106,7 +113,7 @@ console = {
 		}
 	},
 
-	// Ctor ////////////////////////////////////////////////////////////////////////////////////////
+	// Ctor 
 
 	init: function() {
 		console.log("load settings from localStorage, if possible");
@@ -118,7 +125,7 @@ console = {
 		this.tags.flush();
 	},
 
-	// Original console method wrappers ////////////////////////////////////////////////////////////
+	// Original console method wrappers 
 
 	log: function() {
 		var args = this.internal.generateMessageAdditions(this, arguments);
@@ -183,7 +190,7 @@ console = {
 		}
 	},
 
-	// Backends ////////////////////////////////////////////////////////////////////////////////////
+	// Backends 
 
 	backends: {
 		_backends: {},
@@ -203,7 +210,7 @@ console = {
 		}
 	},
 
-	// Stacks //////////////////////////////////////////////////////////////////////////////////////
+	// Stacks 
 
 	stacks: {
 		_stacks: [],
@@ -232,14 +239,14 @@ console = {
 		}
 	},
 
-	// Tags ////////////////////////////////////////////////////////////////////////////////////////
+	// Tags 
 
 	tags: {
 		_tags: [],
 		_selectedTags: [],
 		_muteAllByDefault:true,
 		_author: undefined,
-		_authorFoldersDisplay: 0,
+		_authorFoldersDisplay: 2,
 
 		add: function(tag){
 			this._tags.push(tag);
@@ -272,13 +279,13 @@ console = {
 		},
 	},
 
-	// Message filtering ////////////////////////////////////////////////////////////////////////////
+	// Message filtering 
 
 	filterMessages: function(regex) {
 		this._filter = regex;
 	},
 
-	// Settings Management //////////////////////////////////////////////////////////////////////////
+	// Settings Management 
 
 	settings: {
 		_savedProperties: ["tags._selectedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay"],
@@ -319,6 +326,5 @@ console = {
 		_colors: false
 	}
 };
-console.debug = console.log;
 console.init();
 
