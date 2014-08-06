@@ -23,7 +23,14 @@ console = {
 			var i;
 
 			//getting author name
-			var file_split = new Error().stack.split('\n')[3].split('/');
+			var file_split;
+			try {
+				file_split = new Error().stack.split('\n')[3].split('/');
+			} catch(e) {
+				//console not supported, exiting.
+				//TODO log the message with the standard output
+				return null;
+			}
 
 			//consoleObject._baseConsole.log("file split", file_split);
 
