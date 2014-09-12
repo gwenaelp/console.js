@@ -29,6 +29,7 @@ console = {
 			} catch(e) {
 				//console not supported, exiting.
 				//TODO log the message with the standard output
+				alert(argumentsArray);
 				return null;
 			}
 
@@ -95,11 +96,6 @@ console = {
 				}
 			}
 
-			if(consoleObject.stacks._check_repeats(args)) {
-				_baseConsole.error("too much similar messages", arguments);
-				if(! forceDisplay)
-					return null;
-			}
 			if(!! consoleObject.stacks.display) {
 				var err = new Error();
 
@@ -215,24 +211,6 @@ console = {
 
 	stacks: {
 		_stacks: [],
-		_repeats: {},
-		_repeat_threshold: 1000,
-
-		_check_repeats: function() {
-				var err = new Error();
-				if(this._repeats[err.stack] === undefined) {
-					this._repeats[err.stack] = {};
-					this._repeats[err.stack].counter = 1;
-				}
-				else {
-					this._repeats[err.stack].counter ++;
-				}
-				if(this._repeats[err.stack].counter > this._repeat_threshold) {
-					return true;
-				}
-				return false;
-		},
-
 		display: false,
 
 		get: function(index) {
