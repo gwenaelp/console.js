@@ -36,44 +36,52 @@ console = {
             //consoleObject._baseConsole.log("file split", file_split);
 
             var file_location = file_split[file_split.length - 1];
-            for(i = 1; i < consoleObject.tags._authorFoldersDisplay; i++) {
+            for(i = 1, l = consoleObject.tags._authorFoldersDisplay; i < l; i++) {
                 file_location = file_split[file_split.length - i - 1] + "/" + file_location;
             }
 
-            var filename = file_location.split(':')[0];
             file_location = file_location.replace(')','');
-            var line_number = file_location.split(':')[1] + ":" + file_location.split(':')[2];
 
-            if (consoleObject.tags._selectedTags !== undefined && consoleObject.tags._selectedTags !== null && consoleObject.tags._selectedTags.contains(filename)) {
+            var file_location_split = file_location.split(':');
+
+            var filename = file_location_split[0];
+            var line_number = file_location_split[1] + ":" + file_location_split[2];
+
+            var selectedTags = console.tags._selectedTags;
+            var selectedTagsContainsFilename = selectedTags.contains(filename);
+
+            if (selectedTags !== undefined && selectedTags !== null && selectedTagsContainsFilename) {
                 return null;
             }
+
             var args_tags = "[" + filename + "][" + line_number + "]";
 
             var tagMatchSelectedTag = false;
             if(consoleObject.tags._tags !== undefined) {
-                for (i = 0; i <= consoleObject.tags._tags.length - 1 ; i++) {
-                    if (consoleObject.tags._selectedTags.contains(consoleObject.tags._tags[i])) {
+                for (i = 0, l = consoleObject.tags._tags.length - 1; i <= l ; i++) {
+                    if (selectedTags.contains(consoleObject.tags._tags[i])) {
                         tagMatchSelectedTag = true;
                     }
                     args_tags += "["+ consoleObject.tags._tags[i] +"]";
                 }
             }
 
-            if (consoleObject.tags._muteAllByDefault === false && consoleObject.tags._selectedTags !== undefined && consoleObject.tags._selectedTags !== null && consoleObject.tags._selectedTags.contains(filename)) {
-                if(! forceDisplay)
-                    return null;
-            }
-            if (consoleObject.tags._muteAllByDefault === true && consoleObject.tags._selectedTags !== undefined && consoleObject.tags._selectedTags !== null && !consoleObject.tags._selectedTags.contains(filename)) {
-                if(! forceDisplay)
-                    return null;
-            }
-            if(tagMatchSelectedTag === false && consoleObject.tags._muteAllByDefault === true) {
-                if(! forceDisplay)
-                    return null;
-            }
-            if(tagMatchSelectedTag === true && consoleObject.tags._muteAllByDefault === false) {
-                if(! forceDisplay)
-                    return null;
+            if(! forceDisplay) {
+                if(consoleObject.tags._muteAllByDefault === true) {
+                    if (selectedTags !== undefined && selectedTags !== null && !selectedTagsContainsFilename) {
+                            return null;
+                    }
+                    if(tagMatchSelectedTag === false) {
+                            return null;
+                    }
+                } else {
+                    if (selectedTags !== undefined && selectedTags !== null && selectedTagsContainsFilename) {
+                            return null;
+                    }
+                    if(tagMatchSelectedTag === true) {
+                            return null;
+                    }
+                }
             }
 
             if(!! consoleObject.style._colors) {
@@ -85,7 +93,7 @@ console = {
             }
 
             if(consoleObject._filter !== "" && consoleObject._filter !== undefined && consoleObject._filter !== null) {
-                for (i = 0; i < args.length; i++) {
+                for (i = 0, l = args.length; i < l; i++) {
                     if(typeof args[i] === "string") {
                         var regex = new RegExp(consoleObject._filter);
                         if(regex.test(args[i])) {
@@ -103,7 +111,7 @@ console = {
                 args.push("[>" + consoleObject.stacks._stacks.length + "]");
             }
 
-            for (i = 0; i < argumentsArray.length; i++) {
+            for (i = 0, l = argumentsArray.length; i < l; i++) {
                 args.push(argumentsArray[i]);
             }
 
@@ -118,7 +126,7 @@ console = {
         this.settings.load();
         if(this.tags._selectedTags === undefined || this.tags._selectedTags === null) {
             this.tags._selectedTags = [];
-        }   
+        }
         this.tags.flush();
     },
 
@@ -201,8 +209,8 @@ console = {
         },
 
         send: function(function_name, args) {
-            for (var i = 0; i < this._backends.length; i++) {
-                this._backends[i].send(function_name, args);
+            for (backend in this._backends) {
+                this._backends[backend].send(function_name, args);
             }
         }
     },
@@ -232,7 +240,7 @@ console = {
         },
 
         remove: function(tag){
-            for (var i = 0; i < this._tags.length; i++) {
+            for (var i = 0, l = this._tags.length; i < l; i++) {
                 if(this._tags[i] === tag) {
                     this._tags.splice(i, 1);
                     return;
@@ -245,7 +253,7 @@ console = {
         },
 
         unselect: function(tag) {
-            for (var i = 0; i < this._selectedTags.length; i++) {
+            for (var i = 0, l = this._selectedTags.length; i < l; i++) {
                 if(this._selectedTags[i] === tag) {
                     this._selectedTags.splice(i, 1);
                     return;
@@ -270,7 +278,7 @@ console = {
         _savedProperties: ["tags._selectedTags", "style._colors", "stacks.display","tags._authorFoldersDisplay", "tags._muteAllByDefault"],
 
         save: function() {
-            for (var i = 0; i < this._savedProperties.length; i++) {
+            for (var i = 0, l = this._savedProperties.length; i < l; i++) {
                 var currentPropStr = "console." + this._savedProperties[i];
 
                 var val = eval(currentPropStr);
@@ -285,7 +293,7 @@ console = {
         },
 
         load: function() {
-            for (var i = 0; i < this._savedProperties.length; i++) {
+            for (var i = 0, l = this._savedProperties.length; i < l; i++) {
                 var currentPropStr = "console." + this._savedProperties[i];
 
                 eval(currentPropStr + "= " + localStorage.getItem(currentPropStr));
@@ -293,7 +301,7 @@ console = {
         },
 
         reset: function() {
-            for (var i = 0; i < this._savedProperties.length; i++) {
+            for (var i = 0, l = this._savedProperties.length; i < l; i++) {
                 var currentPropStr = "console." + this._savedProperties[i];
 
                 eval(currentPropStr + "= " + undefined);
