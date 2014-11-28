@@ -1,11 +1,24 @@
 {
   "name": "console.js",
-  "version": "1.0.0",
-  "description": "An enhenced console for javascript projects",
-  "keywords": ["js", "console"],
-  "author": "Gwenaël Pluchon <gpluchon@capensis.fr>",
   "main": "console.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/gwenaelp/console.js",
+  "authors": [
+    "Gwenaël Pluchon <gpluchon@capensis.fr>"
+  ],
+  "description": "An enhenced console for js apps",
+  "keywords": [
+    "console",
+    "application",
+    "js"
+  ],
+  "license": "MIT",
+  "private": true,
   "ignore": [
-    "**/.*"
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
   ]
 }
