@@ -1,0 +1,11 @@
+{
+  "name": "console.js",
+  "version": "1.0.0",
+  "description": "An enhenced console for javascript projects",
+  "keywords": ["js", "console"],
+  "author": "Gwenaël Pluchon <gpluchon@capensis.fr>",
+  "main": "console.js",
+  "ignore": [
+    "**/.*"
+  ]
+}
